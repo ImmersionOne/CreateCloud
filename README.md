@@ -1,4 +1,4 @@
-# CrateCloud
+# CrateCloud by DJ Roma
 
 Cloud backup and sharing platform for DJs. Automatically backup your Serato library to the cloud and share tracks with your crew.
 
@@ -6,7 +6,7 @@ Cloud backup and sharing platform for DJs. Automatically backup your Serato libr
 
 - **Automatic Backup**: Watch your music folder and automatically upload new tracks
 - **Serato Integration**: Backup crates, cue points, loops, and all metadata
-- **Crew Sharing**: Create invite-only groups to share original productions
+- **Crew Sharing**: Create invite-only groups to share music with other DJs
 - **Cross-Device Sync**: Access your library from any Mac
 - **Simple & Full UI**: Menu bar app for quick status, full window for management
 

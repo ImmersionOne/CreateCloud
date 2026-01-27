@@ -1,0 +1,65 @@
+[project]
+name = "cratecloud"
+version = "0.1.0"
+description = "Cloud backup and sharing platform for DJs - backup your Serato library and share with your crew"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "CrateCloud Team" }
+]
+keywords = ["dj", "serato", "backup", "cloud", "music"]
+
+dependencies = [
+    "watchdog>=3.0.0",           # File system monitoring
+    "boto3>=1.34.0",             # AWS SDK
+    "mutagen>=1.47.0",           # Audio metadata parsing (used by serato-tools)
+    "serato-tools>=0.1.0",       # Serato metadata parsing
+    "httpx>=0.27.0",             # HTTP client for API calls
+    "pydantic>=2.5.0",           # Data validation
+    "pydantic-settings>=2.1.0",  # Settings management
+    "rich>=13.7.0",              # Beautiful CLI output
+    "typer>=0.9.0",              # CLI framework
+    "keyring>=24.3.0",           # Secure credential storage
+    "appdirs>=1.4.4",            # Platform-specific directories
+]
+
+[project.optional-dependencies]
+ui = [
+    "PyQt6>=6.6.0",              # Desktop UI framework
+    "pyobjc-framework-Cocoa>=10.0",  # macOS native integration
+    "rumps>=0.4.0",              # macOS menu bar apps
+]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+    "boto3-stubs[s3,dynamodb,cognito-idp]>=1.34.0",
+]
+
+[project.scripts]
+cratecloud = "cratecloud.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cratecloud"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

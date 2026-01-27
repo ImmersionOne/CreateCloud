@@ -4,7 +4,7 @@ Cloud backup and sharing platform for DJs. Automatically backup your Serato libr
 
 ## Features
 
-- **Automatic Backup**: Watch your music folder and automatically upload new tracks
+- **Automatic Backup**: Monitors your music folder and automatically upload new tracks
 - **Serato Integration**: Backup crates, cue points, loops, and all metadata
 - **Crew Sharing**: Create invite-only groups to share music with other DJs
 - **Cross-Device Sync**: Access your library from any Mac

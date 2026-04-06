@@ -1,4 +1,4 @@
-"""Data models for CrateCloud."""
+"""Data models for Crat8Cloud."""
 
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -162,7 +162,7 @@ class SyncState:
 
 @dataclass
 class User:
-    """CrateCloud user."""
+    """Crat8Cloud user."""
 
     user_id: str
     email: str

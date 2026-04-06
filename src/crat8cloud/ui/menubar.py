@@ -1,4 +1,4 @@
-"""macOS Menu Bar application for CrateCloud."""
+"""macOS Menu Bar application for Crat8Cloud."""
 
 import logging
 import threading
@@ -18,7 +18,7 @@ def check_rumps_available() -> bool:
 
 class MenuBarApp:
     """
-    Simple menu bar application for CrateCloud.
+    Simple menu bar application for Crat8Cloud.
 
     Provides quick access to:
     - Sync status
@@ -47,13 +47,13 @@ class MenuBarApp:
         try:
             import rumps
         except ImportError:
-            logger.error("rumps not installed. Install with: pip install 'cratecloud[ui]'")
+            logger.error("rumps not installed. Install with: pip install 'crat8cloud[ui]'")
             raise
 
-        class CrateCloudMenuBar(rumps.App):
+        class Crat8CloudMenuBar(rumps.App):
             def __init__(app_self, sync_engine, config):
                 super().__init__(
-                    name="CrateCloud",
+                    name="Crat8Cloud",
                     title="☁️",  # Cloud emoji as icon
                     quit_button=None,  # We'll add our own
                 )
@@ -68,11 +68,11 @@ class MenuBarApp:
                     rumps.MenuItem("Synced: 0 tracks", callback=None),
                     None,  # Separator
                     rumps.MenuItem("Sync Now", callback=app_self.sync_now),
-                    rumps.MenuItem("Open CrateCloud", callback=app_self.open_full_app),
+                    rumps.MenuItem("Open Crat8Cloud", callback=app_self.open_full_app),
                     None,  # Separator
                     rumps.MenuItem("Preferences...", callback=app_self.open_preferences),
                     None,  # Separator
-                    rumps.MenuItem("Quit CrateCloud", callback=app_self.quit_app),
+                    rumps.MenuItem("Quit Crat8Cloud", callback=app_self.quit_app),
                 ]
 
             @rumps.timer(30)  # Update every 30 seconds
@@ -117,14 +117,14 @@ class MenuBarApp:
                             app_self.sync_engine.scan_and_index()
                             app_self.sync_engine.queue_pending_uploads()
                             rumps.notification(
-                                title="CrateCloud",
+                                title="Crat8Cloud",
                                 subtitle="Sync complete",
                                 message="Your library is up to date.",
                             )
                         except Exception as e:
                             logger.error(f"Sync failed: {e}")
                             rumps.notification(
-                                title="CrateCloud",
+                                title="Crat8Cloud",
                                 subtitle="Sync failed",
                                 message=str(e),
                             )
@@ -132,21 +132,21 @@ class MenuBarApp:
                     threading.Thread(target=do_sync, daemon=True).start()
                 else:
                     rumps.notification(
-                        title="CrateCloud",
+                        title="Crat8Cloud",
                         subtitle="Not configured",
-                        message="Please configure CrateCloud first.",
+                        message="Please configure Crat8Cloud first.",
                     )
 
             def open_full_app(app_self, _):
-                """Open the full CrateCloud window."""
+                """Open the full Crat8Cloud window."""
                 import subprocess
                 try:
                     # Try to open the full UI
-                    subprocess.Popen(["python", "-m", "cratecloud", "ui", "--mode", "full"])
+                    subprocess.Popen(["python", "-m", "crat8cloud", "ui", "--mode", "full"])
                 except Exception as e:
                     logger.error(f"Failed to open full app: {e}")
                     rumps.notification(
-                        title="CrateCloud",
+                        title="Crat8Cloud",
                         subtitle="Error",
                         message="Could not open full application.",
                     )
@@ -155,7 +155,7 @@ class MenuBarApp:
                 """Open preferences."""
                 # For now, just show a notification
                 rumps.notification(
-                    title="CrateCloud",
+                    title="Crat8Cloud",
                     subtitle="Preferences",
                     message="Preferences will be available in a future update.",
                 )
@@ -166,7 +166,7 @@ class MenuBarApp:
                     app_self.sync_engine.close()
                 rumps.quit_application()
 
-        self._app = CrateCloudMenuBar(self.sync_engine, self.config)
+        self._app = Crat8CloudMenuBar(self.sync_engine, self.config)
         return self._app
 
     def run(self):
@@ -174,11 +174,11 @@ class MenuBarApp:
         if not check_rumps_available():
             logger.error("rumps not available. This app requires macOS.")
             print("Error: Menu bar app requires macOS and rumps package.")
-            print("Install with: pip install 'cratecloud[ui]'")
+            print("Install with: pip install 'crat8cloud[ui]'")
             return
 
         app = self._create_app()
-        logger.info("Starting CrateCloud menu bar app...")
+        logger.info("Starting Crat8Cloud menu bar app...")
         app.run()
 
     def stop(self):

@@ -10,9 +10,9 @@ from pathlib import Path
 from queue import PriorityQueue, Queue
 from typing import Optional
 
-from cratecloud.core.models import Crate, SyncState, SyncStatus, Track
-from cratecloud.core.serato import SeratoParser
-from cratecloud.core.watcher import ChangeType, FileChange, MusicWatcher
+from crat8cloud.core.models import Crate, SyncState, SyncStatus, Track
+from crat8cloud.core.serato import SeratoParser
+from crat8cloud.core.watcher import ChangeType, FileChange, MusicWatcher
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,8 @@ class LocalDatabase:
             db_path: Path to SQLite database file.
         """
         if db_path is None:
-            # Default to ~/.cratecloud/library.db
-            db_path = Path.home() / ".cratecloud" / "library.db"
+            # Default to ~/.crat8cloud/library.db
+            db_path = Path.home() / ".crat8cloud" / "library.db"
 
         self.db_path = db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -190,7 +190,7 @@ class LocalDatabase:
 
     def _row_to_track(self, row: sqlite3.Row) -> Track:
         """Convert a database row to a Track object."""
-        from cratecloud.core.models import BeatGrid, CuePoint, Loop
+        from crat8cloud.core.models import BeatGrid, CuePoint, Loop
 
         cue_points = []
         if row["cue_points_json"]:

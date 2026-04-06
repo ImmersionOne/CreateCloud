@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from cratecloud.core.models import BeatGrid, Crate, CuePoint, Loop, SyncStatus, Track
+from crat8cloud.core.models import BeatGrid, Crate, CuePoint, Loop, SyncStatus, Track
 
 logger = logging.getLogger(__name__)
 

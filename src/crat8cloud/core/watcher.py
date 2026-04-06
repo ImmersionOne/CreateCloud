@@ -14,7 +14,7 @@ from typing import Optional
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
-from cratecloud.core.serato import SUPPORTED_EXTENSIONS
+from crat8cloud.core.serato import SUPPORTED_EXTENSIONS
 
 logger = logging.getLogger(__name__)
 

@@ -10,12 +10,12 @@ import boto3
 from botocore.config import Config
 from botocore.exceptions import ClientError
 
-from cratecloud.core.models import Track
+from crat8cloud.core.models import Track
 
 logger = logging.getLogger(__name__)
 
 # Default bucket configuration
-DEFAULT_BUCKET_PREFIX = "cratecloud"
+DEFAULT_BUCKET_PREFIX = "crat8cloud"
 DEFAULT_REGION = "us-east-1"
 
 

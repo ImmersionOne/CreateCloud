@@ -1,4 +1,4 @@
-# CrateCloud by DJ Roma
+# Crat8Cloud by DJ Roma
 
 Cloud backup and sharing platform for DJs. Automatically backup your Serato library to the cloud and share tracks with your crew.
 
@@ -14,8 +14,8 @@ Cloud backup and sharing platform for DJs. Automatically backup your Serato libr
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/cratecloud.git
-cd cratecloud
+git clone https://github.com/yourusername/crat8cloud.git
+cd crat8cloud
 
 # Create virtual environment
 python3 -m venv venv
@@ -29,24 +29,24 @@ pip install -e ".[ui,dev]"
 
 ```bash
 # Run the CLI
-cratecloud --help
+crat8cloud --help
 
 # Start the menu bar app
-cratecloud ui --mode menubar
+crat8cloud ui --mode menubar
 
 # Start the full window app
-cratecloud ui --mode full
+crat8cloud ui --mode full
 
 # Manual backup
-cratecloud backup --path ~/Music
+crat8cloud backup --path ~/Music
 
 # Check sync status
-cratecloud status
+crat8cloud status
 ```
 
 ## Configuration
 
-CrateCloud stores configuration in `~/.cratecloud/config.json`:
+Crat8Cloud stores configuration in `~/.crat8cloud/config.json`:
 
 ```json
 {
@@ -76,8 +76,8 @@ CrateCloud stores configuration in `~/.cratecloud/config.json`:
 ## Project Structure
 
 ```
-cratecloud/
-├── src/cratecloud/
+crat8cloud/
+├── src/crat8cloud/
 │   ├── core/           # Core business logic
 │   │   ├── serato.py   # Serato metadata parsing
 │   │   ├── watcher.py  # File system monitoring

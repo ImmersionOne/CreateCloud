@@ -1,4 +1,4 @@
-"""Full window application for CrateCloud using PyQt6."""
+"""Full window application for Crat8Cloud using PyQt6."""
 
 import logging
 import sys
@@ -18,9 +18,9 @@ def check_pyqt_available() -> bool:
         return False
 
 
-class CrateCloudWindow:
+class Crat8CloudWindow:
     """
-    Full window application for CrateCloud.
+    Full window application for Crat8Cloud.
 
     Features:
     - Library browser with track list
@@ -68,7 +68,7 @@ class CrateCloudWindow:
                 QWidget,
             )
         except ImportError:
-            logger.error("PyQt6 not installed. Install with: pip install 'cratecloud[ui]'")
+            logger.error("PyQt6 not installed. Install with: pip install 'crat8cloud[ui]'")
             raise
 
         class MainWindow(QMainWindow):
@@ -81,7 +81,7 @@ class CrateCloudWindow:
 
             def _setup_ui(mw_self):
                 """Set up the main window UI."""
-                mw_self.setWindowTitle("CrateCloud")
+                mw_self.setWindowTitle("Crat8Cloud")
                 mw_self.setMinimumSize(1000, 700)
 
                 # Central widget
@@ -223,7 +223,7 @@ class CrateCloudWindow:
                 # Help menu
                 help_menu = menubar.addMenu("Help")
 
-                about_action = QAction("About CrateCloud", mw_self)
+                about_action = QAction("About Crat8Cloud", mw_self)
                 about_action.triggered.connect(mw_self._show_about)
                 help_menu.addAction(about_action)
 
@@ -290,7 +290,7 @@ class CrateCloudWindow:
                     return
 
                 try:
-                    from cratecloud.core.models import SyncStatus
+                    from crat8cloud.core.models import SyncStatus
 
                     tracks = mw_self.sync_engine.db.get_all_tracks()
 
@@ -331,8 +331,8 @@ class CrateCloudWindow:
 
                 QMessageBox.about(
                     mw_self,
-                    "About CrateCloud",
-                    "CrateCloud v0.1.0\n\n"
+                    "About Crat8Cloud",
+                    "Crat8Cloud v0.1.0\n\n"
                     "Cloud backup and sharing platform for DJs.\n\n"
                     "Automatically backup your Serato library to the cloud "
                     "and share tracks with your crew."
@@ -354,7 +354,7 @@ class CrateCloudWindow:
         if not check_pyqt_available():
             logger.error("PyQt6 not available.")
             print("Error: Window app requires PyQt6 package.")
-            print("Install with: pip install 'cratecloud[ui]'")
+            print("Install with: pip install 'crat8cloud[ui]'")
             return 1
 
         app, window = self._create_app()
@@ -364,7 +364,7 @@ class CrateCloudWindow:
         if self.sync_engine:
             window._load_tracks()
 
-        logger.info("Starting CrateCloud window app...")
+        logger.info("Starting Crat8Cloud window app...")
         return app.exec()
 
     def stop(self):
@@ -384,7 +384,7 @@ def run_window_app(sync_engine=None, config=None):
     Returns:
         Exit code.
     """
-    app = CrateCloudWindow(sync_engine=sync_engine, config=config)
+    app = Crat8CloudWindow(sync_engine=sync_engine, config=config)
     return app.run()
 
 

@@ -1,1 +1,1 @@
-"""Tests for CrateCloud."""
+"""Tests for Crat8Cloud."""

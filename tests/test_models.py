@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from cratecloud.core.models import (
+from crat8cloud.core.models import (
     BeatGrid,
     Crate,
     CuePoint,

@@ -1,4 +1,4 @@
-"""Command-line interface for CrateCloud."""
+"""Command-line interface for Crat8Cloud."""
 
 import logging
 import sys
@@ -11,8 +11,8 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 from rich.table import Table
 
-from cratecloud import __version__
-from cratecloud.config import ConfigManager, CredentialsManager, get_config
+from crat8cloud import __version__
+from crat8cloud.config import ConfigManager, CredentialsManager, get_config
 
 # Set up logging
 logging.basicConfig(
@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 
 # CLI app
 app = typer.Typer(
-    name="cratecloud",
-    help="CrateCloud - Cloud backup and sharing platform for DJs",
+    name="crat8cloud",
+    help="Crat8Cloud - Cloud backup and sharing platform for DJs",
     add_completion=False,
 )
 
@@ -41,7 +41,7 @@ class UIMode(str, Enum):
 def version_callback(value: bool):
     """Print version and exit."""
     if value:
-        console.print(f"CrateCloud v{__version__}")
+        console.print(f"Crat8Cloud v{__version__}")
         raise typer.Exit()
 
 
@@ -56,14 +56,14 @@ def main(
         help="Show version and exit.",
     ),
 ):
-    """CrateCloud - Cloud backup and sharing platform for DJs."""
+    """Crat8Cloud - Cloud backup and sharing platform for DJs."""
     pass
 
 
 @app.command()
 def status():
     """Show current sync status."""
-    from cratecloud.core.sync import SyncEngine
+    from crat8cloud.core.sync import SyncEngine
 
     config = get_config()
 
@@ -76,7 +76,7 @@ def status():
     try:
         state = engine.get_sync_state()
 
-        table = Table(title="CrateCloud Status")
+        table = Table(title="Crat8Cloud Status")
         table.add_column("Metric", style="cyan")
         table.add_column("Value", style="green")
 
@@ -115,7 +115,7 @@ def scan(
     ),
 ):
     """Scan and index your music library."""
-    from cratecloud.core.sync import SyncEngine
+    from crat8cloud.core.sync import SyncEngine
 
     config = get_config()
 
@@ -165,13 +165,13 @@ def backup(
     ),
 ):
     """Backup music to the cloud."""
-    from cratecloud.core.models import SyncStatus
-    from cratecloud.core.sync import SyncEngine
+    from crat8cloud.core.models import SyncStatus
+    from crat8cloud.core.sync import SyncEngine
 
     config = get_config()
 
     if not config.aws.bucket_name:
-        console.print("[red]Error:[/red] AWS not configured. Run 'cratecloud config' first.")
+        console.print("[red]Error:[/red] AWS not configured. Run 'crat8cloud config' first.")
         raise typer.Exit(1)
 
     music_paths = [path] if path else config.music_paths_as_paths
@@ -225,7 +225,7 @@ def backup(
         else:
             # TODO: Actual upload implementation
             console.print("[yellow]Upload functionality requires AWS configuration.[/yellow]")
-            console.print("Run 'cratecloud config' to set up your AWS credentials.")
+            console.print("Run 'crat8cloud config' to set up your AWS credentials.")
 
     finally:
         engine.close()
@@ -234,12 +234,12 @@ def backup(
 @app.command()
 def watch():
     """Watch for file changes and sync automatically."""
-    from cratecloud.core.sync import SyncEngine
-    from cratecloud.core.watcher import FileChange
+    from crat8cloud.core.sync import SyncEngine
+    from crat8cloud.core.watcher import FileChange
 
     config = get_config()
 
-    console.print("[cyan]Starting CrateCloud file watcher...[/cyan]")
+    console.print("[cyan]Starting Crat8Cloud file watcher...[/cyan]")
     console.print(f"Watching: {', '.join(str(p) for p in config.music_paths_as_paths)}")
     console.print("Press Ctrl+C to stop.\n")
 
@@ -254,7 +254,7 @@ def watch():
 
     try:
         engine.watcher = engine.watcher or None
-        from cratecloud.core.watcher import MusicWatcher
+        from crat8cloud.core.watcher import MusicWatcher
         watcher = MusicWatcher(
             music_paths=config.music_paths_as_paths,
             serato_path=config.serato_path_as_path,
@@ -287,12 +287,12 @@ def configure(
         help="Reset configuration to defaults.",
     ),
 ):
-    """Configure CrateCloud settings."""
+    """Configure Crat8Cloud settings."""
     manager = ConfigManager()
 
     if show:
         config = manager.config
-        table = Table(title="CrateCloud Configuration")
+        table = Table(title="Crat8Cloud Configuration")
         table.add_column("Setting", style="cyan")
         table.add_column("Value", style="green")
 
@@ -314,7 +314,7 @@ def configure(
         return
 
     # Interactive configuration
-    console.print("[cyan]CrateCloud Configuration[/cyan]\n")
+    console.print("[cyan]Crat8Cloud Configuration[/cyan]\n")
 
     config = manager.config
 
@@ -355,7 +355,7 @@ def login(
         help="Your password.",
     ),
 ):
-    """Log in to CrateCloud."""
+    """Log in to Crat8Cloud."""
     config = get_config()
 
     if not config.aws.user_pool_id or not config.aws.client_id:
@@ -363,7 +363,7 @@ def login(
         console.print("Contact your administrator for the user pool details.")
         raise typer.Exit(1)
 
-    from cratecloud.cloud.auth import AuthClient, AuthError
+    from crat8cloud.cloud.auth import AuthClient, AuthError
 
     try:
         auth = AuthClient(
@@ -396,7 +396,7 @@ def login(
 
 @app.command()
 def logout():
-    """Log out of CrateCloud."""
+    """Log out of Crat8Cloud."""
     creds_manager = CredentialsManager()
     creds_manager.clear_credentials()
 
@@ -415,8 +415,8 @@ def ui(
         help="UI mode: 'menubar' for menu bar app, 'full' for window app.",
     ),
 ):
-    """Launch the CrateCloud UI."""
-    from cratecloud.core.sync import SyncEngine
+    """Launch the Crat8Cloud UI."""
+    from crat8cloud.core.sync import SyncEngine
 
     config = get_config()
 
@@ -428,12 +428,12 @@ def ui(
 
     try:
         if mode == UIMode.MENUBAR:
-            from cratecloud.ui.menubar import run_menubar_app
-            console.print("[cyan]Starting CrateCloud menu bar app...[/cyan]")
+            from crat8cloud.ui.menubar import run_menubar_app
+            console.print("[cyan]Starting Crat8Cloud menu bar app...[/cyan]")
             run_menubar_app(sync_engine=engine, config=config)
         else:
-            from cratecloud.ui.window import run_window_app
-            console.print("[cyan]Starting CrateCloud...[/cyan]")
+            from crat8cloud.ui.window import run_window_app
+            console.print("[cyan]Starting Crat8Cloud...[/cyan]")
             sys.exit(run_window_app(sync_engine=engine, config=config))
 
     finally:
@@ -451,8 +451,8 @@ def tracks(
     ),
 ):
     """List tracks in your library."""
-    from cratecloud.core.models import SyncStatus
-    from cratecloud.core.sync import SyncEngine
+    from crat8cloud.core.models import SyncStatus
+    from crat8cloud.core.sync import SyncEngine
 
     config = get_config()
 
@@ -475,7 +475,7 @@ def tracks(
             tracks = engine.db.get_all_tracks()
 
         if not tracks:
-            console.print("No tracks found. Run 'cratecloud scan' first.")
+            console.print("No tracks found. Run 'crat8cloud scan' first.")
             return
 
         table = Table(title=f"Tracks ({len(tracks)} total)")
@@ -510,7 +510,7 @@ def tracks(
 @app.command()
 def crates():
     """List Serato crates."""
-    from cratecloud.core.serato import SeratoParser
+    from crat8cloud.core.serato import SeratoParser
 
     config = get_config()
     parser = SeratoParser(

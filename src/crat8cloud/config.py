@@ -1,4 +1,4 @@
-"""Configuration management for CrateCloud."""
+"""Configuration management for Crat8Cloud."""
 
 import json
 import logging
@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 logger = logging.getLogger(__name__)
 
 # Default paths
-DEFAULT_CONFIG_DIR = Path.home() / ".cratecloud"
+DEFAULT_CONFIG_DIR = Path.home() / ".crat8cloud"
 DEFAULT_CONFIG_FILE = DEFAULT_CONFIG_DIR / "config.json"
 DEFAULT_CREDENTIALS_FILE = DEFAULT_CONFIG_DIR / "credentials.json"
 DEFAULT_DB_FILE = DEFAULT_CONFIG_DIR / "library.db"
@@ -44,11 +44,11 @@ class UIConfig(BaseModel):
     theme: str = "system"  # "light", "dark", "system"
 
 
-class CrateCloudConfig(BaseSettings):
-    """Main CrateCloud configuration."""
+class Crat8CloudConfig(BaseSettings):
+    """Main Crat8Cloud configuration."""
 
     model_config = SettingsConfigDict(
-        env_prefix="CRATECLOUD_",
+        env_prefix="CRAT8CLOUD_",
         env_nested_delimiter="__",
     )
 
@@ -98,16 +98,16 @@ class ConfigManager:
             config_path: Path to config file.
         """
         self.config_path = config_path or DEFAULT_CONFIG_FILE
-        self._config: Optional[CrateCloudConfig] = None
+        self._config: Optional[Crat8CloudConfig] = None
 
     @property
-    def config(self) -> CrateCloudConfig:
+    def config(self) -> Crat8CloudConfig:
         """Get the current configuration, loading if needed."""
         if self._config is None:
             self._config = self.load()
         return self._config
 
-    def load(self) -> CrateCloudConfig:
+    def load(self) -> Crat8CloudConfig:
         """
         Load configuration from file.
 
@@ -118,25 +118,25 @@ class ConfigManager:
             try:
                 with open(self.config_path) as f:
                     data = json.load(f)
-                self._config = CrateCloudConfig(**data)
+                self._config = Crat8CloudConfig(**data)
                 logger.info(f"Loaded config from {self.config_path}")
             except Exception as e:
                 logger.warning(f"Failed to load config: {e}, using defaults")
-                self._config = CrateCloudConfig()
+                self._config = Crat8CloudConfig()
         else:
             logger.info("No config file found, using defaults")
-            self._config = CrateCloudConfig()
+            self._config = Crat8CloudConfig()
 
         return self._config
 
-    def save(self, config: Optional[CrateCloudConfig] = None):
+    def save(self, config: Optional[Crat8CloudConfig] = None):
         """
         Save configuration to file.
 
         Args:
             config: Configuration to save. Uses current if not provided.
         """
-        config = config or self._config or CrateCloudConfig()
+        config = config or self._config or Crat8CloudConfig()
 
         # Ensure config directory exists
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -164,12 +164,12 @@ class ConfigManager:
             else:
                 current[key] = value
 
-        self._config = CrateCloudConfig(**current)
+        self._config = Crat8CloudConfig(**current)
         self.save()
 
     def reset(self):
         """Reset configuration to defaults."""
-        self._config = CrateCloudConfig()
+        self._config = Crat8CloudConfig()
         self.save()
 
 
@@ -208,9 +208,9 @@ class CredentialsManager:
         if self._keyring_available:
             try:
                 import keyring
-                keyring.set_password("cratecloud", "access_token", access_token)
-                keyring.set_password("cratecloud", "refresh_token", refresh_token)
-                keyring.set_password("cratecloud", "user_id", user_id)
+                keyring.set_password("crat8cloud", "access_token", access_token)
+                keyring.set_password("crat8cloud", "refresh_token", refresh_token)
+                keyring.set_password("crat8cloud", "user_id", user_id)
                 logger.info("Stored credentials in keyring")
                 return
             except Exception as e:
@@ -238,9 +238,9 @@ class CredentialsManager:
         if self._keyring_available:
             try:
                 import keyring
-                access_token = keyring.get_password("cratecloud", "access_token")
-                refresh_token = keyring.get_password("cratecloud", "refresh_token")
-                user_id = keyring.get_password("cratecloud", "user_id")
+                access_token = keyring.get_password("crat8cloud", "access_token")
+                refresh_token = keyring.get_password("crat8cloud", "refresh_token")
+                user_id = keyring.get_password("crat8cloud", "user_id")
 
                 if access_token and refresh_token and user_id:
                     return {
@@ -266,9 +266,9 @@ class CredentialsManager:
         if self._keyring_available:
             try:
                 import keyring
-                keyring.delete_password("cratecloud", "access_token")
-                keyring.delete_password("cratecloud", "refresh_token")
-                keyring.delete_password("cratecloud", "user_id")
+                keyring.delete_password("crat8cloud", "access_token")
+                keyring.delete_password("crat8cloud", "refresh_token")
+                keyring.delete_password("crat8cloud", "user_id")
             except Exception:
                 pass
 
@@ -290,6 +290,6 @@ def get_config_manager() -> ConfigManager:
     return _config_manager
 
 
-def get_config() -> CrateCloudConfig:
+def get_config() -> Crat8CloudConfig:
     """Get the current configuration."""
     return get_config_manager().config

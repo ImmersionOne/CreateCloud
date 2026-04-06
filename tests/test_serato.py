@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from cratecloud.core.serato import SUPPORTED_EXTENSIONS, SeratoParser
+from crat8cloud.core.serato import SUPPORTED_EXTENSIONS, SeratoParser
 
 
 class TestSeratoParser:

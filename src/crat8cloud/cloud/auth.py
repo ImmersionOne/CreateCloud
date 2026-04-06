@@ -6,7 +6,7 @@ from typing import Optional
 import boto3
 from botocore.exceptions import ClientError
 
-from cratecloud.core.models import User
+from crat8cloud.core.models import User
 
 logger = logging.getLogger(__name__)
 

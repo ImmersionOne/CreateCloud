@@ -5,22 +5,22 @@ from pathlib import Path
 
 import pytest
 
-from cratecloud.config import (
+from crat8cloud.config import (
     AWSConfig,
     ConfigManager,
-    CrateCloudConfig,
+    Crat8CloudConfig,
     CredentialsManager,
     SyncConfig,
     UIConfig,
 )
 
 
-class TestCrateCloudConfig:
-    """Tests for CrateCloudConfig."""
+class TestCrat8CloudConfig:
+    """Tests for Crat8CloudConfig."""
 
     def test_default_config(self):
         """Test default configuration values."""
-        config = CrateCloudConfig()
+        config = Crat8CloudConfig()
 
         assert str(Path.home() / "Music") in config.music_paths
         assert config.serato_path == str(Path.home() / "Music" / "_Serato_")
@@ -30,7 +30,7 @@ class TestCrateCloudConfig:
 
     def test_music_paths_as_paths(self):
         """Test converting music paths to Path objects."""
-        config = CrateCloudConfig(music_paths=["~/Music", "/external/Music"])
+        config = Crat8CloudConfig(music_paths=["~/Music", "/external/Music"])
 
         paths = config.music_paths_as_paths
         assert len(paths) == 2
@@ -38,7 +38,7 @@ class TestCrateCloudConfig:
 
     def test_custom_config(self):
         """Test custom configuration."""
-        config = CrateCloudConfig(
+        config = Crat8CloudConfig(
             music_paths=["/custom/music"],
             aws=AWSConfig(region="eu-west-1", bucket_name="my-bucket"),
             sync=SyncConfig(auto_backup=False, backup_schedule="hourly"),
@@ -70,7 +70,7 @@ class TestConfigManager:
         manager = ConfigManager(config_path=config_path)
 
         # Modify and save
-        config = CrateCloudConfig(
+        config = Crat8CloudConfig(
             music_paths=["/test/music"],
             aws=AWSConfig(bucket_name="test-bucket"),
         )

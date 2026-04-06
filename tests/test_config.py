@@ -41,14 +41,14 @@ class TestCrat8CloudConfig:
         config = Crat8CloudConfig(
             music_paths=["/custom/music"],
             aws=AWSConfig(region="eu-west-1", bucket_name="my-bucket"),
-            sync=SyncConfig(auto_backup=False, backup_schedule="hourly"),
+            sync=SyncConfig(auto_backup=False, backup_frequency="hourly"),
         )
 
         assert config.music_paths == ["/custom/music"]
         assert config.aws.region == "eu-west-1"
         assert config.aws.bucket_name == "my-bucket"
         assert config.sync.auto_backup is False
-        assert config.sync.backup_schedule == "hourly"
+        assert config.sync.backup_frequency == "hourly"
 
 
 class TestConfigManager:

@@ -26,13 +26,46 @@ class AWSConfig(BaseModel):
     client_id: Optional[str] = None
 
 
+class BackupFrequency(str):
+    """
+    How often the Crat8Cloud agent checks for new/modified files.
+
+    Values:
+      realtime    — file watcher triggers immediately on change (lowest latency,
+                    small S3 PUT overhead from many individual uploads)
+      every_15m   — scan + upload every 15 minutes
+      hourly      — scan + upload every hour (default)
+      daily       — scan + upload once per day (lowest S3 request overhead)
+      manual      — never auto-backup; user must run `crat8cloud backup` manually
+    """
+    REALTIME = "realtime"
+    EVERY_15M = "every_15m"
+    HOURLY = "hourly"
+    DAILY = "daily"
+    MANUAL = "manual"
+
+    # Interval in seconds for each scheduled frequency (None = event-driven or disabled)
+    INTERVALS: dict = {
+        "realtime": None,
+        "every_15m": 900,
+        "hourly": 3600,
+        "daily": 86400,
+        "manual": None,
+    }
+
+    @classmethod
+    def interval_seconds(cls, frequency: str) -> Optional[int]:
+        """Return the polling interval in seconds, or None if not applicable."""
+        return cls.INTERVALS.get(frequency)
+
+
 class SyncConfig(BaseModel):
     """Sync configuration."""
 
     auto_backup: bool = True
     backup_on_change: bool = True
-    backup_schedule: str = "daily"  # "realtime", "hourly", "daily"
-    scan_interval_minutes: int = 60
+    # How often the agent scans and uploads. One of: realtime, every_15m, hourly, daily, manual
+    backup_frequency: str = "hourly"
     max_concurrent_uploads: int = 3
 
 

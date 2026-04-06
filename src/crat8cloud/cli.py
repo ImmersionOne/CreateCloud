@@ -304,9 +304,9 @@ def watch():
     console.print("[cyan]Starting Crat8Cloud file watcher...[/cyan]")
     console.print(f"Watching: {', '.join(str(p) for p in config.music_paths_as_paths)}")
     if auto_backup_active:
-        schedule = config.sync.backup_schedule
+        frequency = config.sync.backup_frequency
         on_change_label = " + upload on change" if config.sync.backup_on_change else ""
-        console.print(f"Auto-backup: [green]{schedule}[/green]{on_change_label}")
+        console.print(f"Auto-backup: [green]{frequency}[/green]{on_change_label}")
     console.print("Press Ctrl+C to stop.\n")
 
     engine = SyncEngine(
@@ -329,12 +329,13 @@ def watch():
     stop_event = threading.Event()
 
     def periodic_backup():
-        schedule = config.sync.backup_schedule
-        interval_seconds = {"hourly": 3600, "daily": 86400}.get(schedule, 0)
-        if interval_seconds == 0:
-            return  # "realtime" is handled by on_change; no periodic thread needed
+        from crat8cloud.config import BackupFrequency
+        frequency = config.sync.backup_frequency
+        interval_seconds = BackupFrequency.interval_seconds(frequency)
+        if interval_seconds is None:
+            return  # "realtime" is event-driven; "manual" never runs
         while not stop_event.wait(interval_seconds):
-            console.print(f"\n[cyan]Scheduled {schedule} backup starting...[/cyan]")
+            console.print(f"\n[cyan]Scheduled {frequency} backup starting...[/cyan]")
             try:
                 engine.scan_and_index()
                 engine.queue_pending_uploads()
@@ -350,7 +351,7 @@ def watch():
         )
         watcher.start()
 
-        if auto_backup_active and config.sync.backup_schedule in ("hourly", "daily"):
+        if auto_backup_active and config.sync.backup_frequency not in ("realtime", "manual"):
             scheduler_thread = threading.Thread(target=periodic_backup, daemon=True)
             scheduler_thread.start()
 
@@ -392,7 +393,7 @@ def configure(
         table.add_row("Serato Path", config.serato_path)
         table.add_row("Config Directory", config.config_dir)
         table.add_row("Auto Backup", str(config.sync.auto_backup))
-        table.add_row("Backup Schedule", config.sync.backup_schedule)
+        table.add_row("Backup Frequency", config.sync.backup_frequency)
         table.add_row("AWS Region", config.aws.region)
         table.add_row("AWS Bucket", config.aws.bucket_name or "Not configured")
 

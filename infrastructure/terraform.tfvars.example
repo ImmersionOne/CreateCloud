@@ -1,0 +1,22 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is gitignored — never commit real values.
+
+# Your 12-digit AWS account ID (find it with: aws sts get-caller-identity)
+aws_account_id = "123456789012"
+
+# Target environment: dev | staging | prod
+environment = "dev"
+
+# AWS region (must match the region you ran `aws configure` with)
+aws_region = "us-east-1"
+
+# Days before old S3 object versions are permanently deleted (default: 90)
+# versioning_expiry_days = 90
+
+# Days before infrequently accessed tracks move to cheaper S3-IA tier (default: 90)
+# ia_transition_days = 90
+
+# Optional extra tags applied to all resources
+# tags = {
+#   Owner = "dj-roma"
+# }

@@ -223,9 +223,54 @@ def backup(
             console.print("\n[yellow]Dry run - no files uploaded.[/yellow]")
 
         else:
-            # TODO: Actual upload implementation
-            console.print("[yellow]Upload functionality requires AWS configuration.[/yellow]")
-            console.print("Run 'crat8cloud config' to set up your AWS credentials.")
+            import time
+            from crat8cloud.cloud.s3 import S3Client
+            from crat8cloud.config import CredentialsManager
+
+            creds = CredentialsManager().get_credentials()
+            if not creds:
+                console.print("[red]Error:[/red] Not logged in. Run 'crat8cloud login' first.")
+                raise typer.Exit(1)
+
+            s3 = S3Client(bucket_name=config.aws.bucket_name, region=config.aws.region)
+            engine.set_s3_client(s3, user_id=creds["user_id"])
+            engine.queue_pending_uploads()
+            engine.start_upload_worker()
+
+            synced_at_start = len(engine.db.get_tracks_by_status(SyncStatus.SYNCED))
+
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TaskProgressColumn(),
+                console=console,
+            ) as progress:
+                task = progress.add_task("Uploading...", total=len(to_upload))
+
+                while True:
+                    state = engine.get_sync_state()
+                    done = state.synced_tracks - synced_at_start
+                    errors = state.error_tracks
+                    progress.update(
+                        task,
+                        completed=done,
+                        description=f"Uploading... ({done}/{len(to_upload)} done, {errors} errors)",
+                    )
+                    if done + errors >= len(to_upload):
+                        break
+                    if engine._upload_queue.empty() and not engine._running:
+                        break
+                    time.sleep(0.5)
+
+            engine.stop_upload_worker()
+            final_state = engine.get_sync_state()
+            newly_synced = final_state.synced_tracks - synced_at_start
+            console.print(f"\n[green]Backup complete![/green] {newly_synced} tracks uploaded.")
+            if final_state.error_tracks:
+                console.print(
+                    f"[yellow]{final_state.error_tracks} track(s) failed — re-run to retry.[/yellow]"
+                )
 
     finally:
         engine.close()
@@ -234,13 +279,34 @@ def backup(
 @app.command()
 def watch():
     """Watch for file changes and sync automatically."""
+    import threading
+    import time
+    from crat8cloud.cloud.s3 import S3Client
+    from crat8cloud.config import CredentialsManager
     from crat8cloud.core.sync import SyncEngine
-    from crat8cloud.core.watcher import FileChange
+    from crat8cloud.core.watcher import FileChange, MusicWatcher
 
     config = get_config()
 
+    # Set up S3 client if credentials are available
+    auto_backup_active = False
+    creds = CredentialsManager().get_credentials()
+    if creds and config.aws.bucket_name:
+        s3_client = S3Client(bucket_name=config.aws.bucket_name, region=config.aws.region)
+        auto_backup_active = config.sync.auto_backup
+    else:
+        s3_client = None
+        if config.sync.auto_backup:
+            console.print(
+                "[yellow]Auto-backup disabled:[/yellow] not logged in or AWS not configured."
+            )
+
     console.print("[cyan]Starting Crat8Cloud file watcher...[/cyan]")
     console.print(f"Watching: {', '.join(str(p) for p in config.music_paths_as_paths)}")
+    if auto_backup_active:
+        schedule = config.sync.backup_schedule
+        on_change_label = " + upload on change" if config.sync.backup_on_change else ""
+        console.print(f"Auto-backup: [green]{schedule}[/green]{on_change_label}")
     console.print("Press Ctrl+C to stop.\n")
 
     engine = SyncEngine(
@@ -249,12 +315,34 @@ def watch():
         db_path=config.db_path,
     )
 
+    if auto_backup_active and s3_client:
+        engine.set_s3_client(s3_client, user_id=creds["user_id"])  # type: ignore[index]
+        engine.start_upload_worker()
+
     def on_change(change: FileChange):
         console.print(f"[yellow]{change.change_type.value}:[/yellow] {change.file_path.name}")
+        # If backup_on_change is enabled and we have an S3 client, let the engine handle it
+        if auto_backup_active and config.sync.backup_on_change:
+            engine._handle_file_change(change)
+
+    # Periodic backup thread for "hourly" / "daily" schedules
+    stop_event = threading.Event()
+
+    def periodic_backup():
+        schedule = config.sync.backup_schedule
+        interval_seconds = {"hourly": 3600, "daily": 86400}.get(schedule, 0)
+        if interval_seconds == 0:
+            return  # "realtime" is handled by on_change; no periodic thread needed
+        while not stop_event.wait(interval_seconds):
+            console.print(f"\n[cyan]Scheduled {schedule} backup starting...[/cyan]")
+            try:
+                engine.scan_and_index()
+                engine.queue_pending_uploads()
+                console.print("[green]Scheduled backup queued.[/green]")
+            except Exception as e:
+                logger.error(f"Scheduled backup failed: {e}")
 
     try:
-        engine.watcher = engine.watcher or None
-        from crat8cloud.core.watcher import MusicWatcher
         watcher = MusicWatcher(
             music_paths=config.music_paths_as_paths,
             serato_path=config.serato_path_as_path,
@@ -262,14 +350,18 @@ def watch():
         )
         watcher.start()
 
-        # Keep running until interrupted
-        import time
+        if auto_backup_active and config.sync.backup_schedule in ("hourly", "daily"):
+            scheduler_thread = threading.Thread(target=periodic_backup, daemon=True)
+            scheduler_thread.start()
+
         while True:
             time.sleep(1)
 
     except KeyboardInterrupt:
         console.print("\n[cyan]Stopping watcher...[/cyan]")
     finally:
+        stop_event.set()
+        watcher.stop()
         engine.close()
 
 

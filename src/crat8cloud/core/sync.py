@@ -321,10 +321,13 @@ class SyncEngine:
 
         # Cloud client (will be set when authenticated)
         self._s3_client = None
+        self._user_id: Optional[str] = None
 
-    def set_s3_client(self, s3_client):
-        """Set the S3 client for uploads."""
+    def set_s3_client(self, s3_client, user_id: Optional[str] = None):
+        """Set the S3 client and user ID for uploads."""
         self._s3_client = s3_client
+        if user_id:
+            self._user_id = user_id
 
     def scan_and_index(self, progress_callback=None):
         """
@@ -488,7 +491,7 @@ class SyncEngine:
             self.db.update_track_status(track.file_path, SyncStatus.UPLOADING)
 
             # Upload to S3
-            s3_key = self._s3_client.upload_track(track)
+            s3_key = self._s3_client.upload_track(track, user_id=self._user_id or "")
 
             # Mark as synced
             self.db.update_track_status(track.file_path, SyncStatus.SYNCED, s3_key=s3_key)

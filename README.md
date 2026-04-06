@@ -112,11 +112,13 @@ mypy src/
 
 ## Roadmap
 
-- [x] Phase 1: Core backup functionality
-- [ ] Phase 2: Restore & sync
-- [ ] Phase 3: Crew sharing
-- [ ] Phase 4: Web dashboard
-- [ ] Phase 5: Mobile app
+- [x] **Phase 1: Core backup** — upload pipeline, file watcher, Serato parser, SQLite sync engine, auto-backup scheduler
+- [ ] **Phase 1.5: Zero-Config Onboarding** — auto-detect Serato installation, auto-discover music folders from the Serato database, guided 3-step first-run flow, no AWS config required from the user. Install → Sign up → You're backed up.
+- [ ] **Phase 2: Restore, Sync & Gig Recovery** — `crat8cloud restore` command, cross-device sync, and **Gig Recovery Mode**: sign into a new machine, hit "Recover My Library", and your entire Serato library (tracks, crates, cue points, loops, beatgrids) downloads and reconstructs exactly as it was. Active crates download first so you can play within 30 minutes.
+- [ ] **Phase 3: Backend API & Billing** — API Gateway + Lambda backend, Stripe subscription billing, per-user storage quotas, remove direct AWS credential requirement from the desktop app
+- [ ] **Phase 4: Crew sharing** — invite-only groups, shared library browsing, presigned track access
+- [ ] **Phase 5: Web dashboard** — account management, billing portal, library overview
+- [ ] **Phase 6: Mobile app** — iOS/Android companion
 
 ## License
 

@@ -506,13 +506,44 @@ All prices use AWS us-east-1 pricing as of 2025. S3 is the dominant cost driver.
 
 ## 9. Implementation Roadmap
 
-### Phase 2 (Restore & Sync) — prerequisite for billing
+### ✅ Phase 1 (Core Backup) — Complete
 
-Before charging users, the full upload→store→restore cycle must work:
+Upload pipeline, file watcher, Serato parser, SQLite sync engine, Cognito auth, S3 client, CLI commands, and auto-backup scheduler are all wired and tested.
 
-1. Wire `S3Client.upload_track()` into `cli.py:226` (the one remaining TODO)
-2. Add `crat8cloud restore` CLI command (download from S3 → local)
-3. Add cross-device sync (compare local SQLite state against S3/DynamoDB manifest)
+---
+
+### Phase 1.5 (Zero-Config Onboarding)
+
+**Goal: Install → Sign up → You're backed up. No manual configuration.**
+
+The current app requires the user to set music paths, configure AWS credentials, and run `crat8cloud config`. That's a barrier. This phase eliminates it entirely.
+
+1. **Auto-detect Serato installation** — on first launch, scan the standard locations (`~/Music/_Serato_`, `/Volumes/*/Music/_Serato_`) and find the Serato folder automatically. If multiple are found, prompt the user to pick one.
+2. **Auto-discover music folders** — parse the Serato `database V2` file to extract all root music paths referenced by the existing library. Pre-populate `music_paths` in config without the user having to type anything.
+3. **Guided first-run flow** — a simple 3-step window: (1) confirm detected Serato path + music folders, (2) sign up / log in, (3) show first backup starting. No AWS configuration exposed to the user — credentials come from the backend API at login.
+4. **Remove direct AWS config requirement** — once the Phase 3 API layer exists, the desktop app gets temporary credentials from the API after login. Users never see bucket names, regions, or access keys.
+5. **Background initial scan** — after first-run, kick off `scan_and_index()` silently in the background. Menu bar shows progress. User can keep working.
+
+---
+
+### Phase 2 (Restore, Sync & Gig Recovery)
+
+**Goal: What goes up must come down — reliably, completely, and fast.**
+
+1. **`crat8cloud restore` CLI command** — download tracks from S3 back to a local path, reconstructing the original folder structure. Supports filtering by crate or date range.
+2. **Cross-device sync** — compare local SQLite state against the S3/DynamoDB manifest. Pull down tracks present in cloud but missing locally, push up anything new locally.
+3. **🎯 Gig Recovery Mode** — one-click full library restore to a new machine:
+   - DJ signs into Crat8Cloud on a fresh Mac
+   - Hits "Recover My Library" in the app
+   - App downloads the last-known Serato `database V2` snapshot and all `.crate` files first (fast, small) so Serato can launch immediately with the correct crate structure
+   - Tracks download in priority order: crates marked as "active sets" or most recently played first, then the full library in the background
+   - Serato-specific metadata (cue points, loops, beatgrids, BPM, keys, colors) is embedded back into each audio file's tags on restore, not just stored in the DB
+   - Progress visible in menu bar: "Recovering: 1,240 / 15,298 tracks"
+   - DJ can start playing from recovered tracks while the rest download
+   - Target: a DJ should be able to play a gig within 30 minutes of signing in on a new machine
+4. **Restore verification** — after download, re-hash each file and compare against stored SHA-256. Flag any corrupted files for re-download.
+
+---
 
 ### Phase 3 (Backend API) — required for SaaS model
 
@@ -524,7 +555,7 @@ Before charging users, the full upload→store→restore cycle must work:
 2. Implement PostConfirmation Lambda (Stripe customer creation)
 3. Implement billing endpoints + Stripe webhook handler
 4. Implement presigned upload URL endpoint with quota enforcement
-5. Update desktop app to use API instead of direct AWS SDK calls
+5. Update desktop app to use API instead of direct AWS SDK calls (enables Zero-Config Onboarding)
 
 ### Phase 4 (Crew Sharing)
 
